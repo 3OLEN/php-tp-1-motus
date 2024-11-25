@@ -6,11 +6,7 @@
             "TpMotus\\": "src/"
         }
     },
-    "require": {}
+    "require": {
+      "ext-mbstring": "*"
+    }
 }
-
-
-
-
-
-
