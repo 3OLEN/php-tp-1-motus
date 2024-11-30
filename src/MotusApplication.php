@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace TpMotus;
 
 use TpMotus\Dto\Motus\MotusConfigurationDto;
+use TpMotus\Util\Command\Output\OutputCommandUtil;
+use TpMotus\Util\String\DisplayStringUtil;
 
 class MotusApplication
 {
@@ -13,16 +15,21 @@ class MotusApplication
      */
     public static function run(MotusConfigurationDto $configuration): void
     {
-        echo "Bienvenue dans le jeu du motus !\n";
-        echo "Vous avez {$configuration->maxAttempts} tentatives pour deviner le mot.\n";
-        echo "\t"
-            . mb_substr(string: $configuration->wordToGuess, start: 0, length: 1)
-            . ' '
-            . implode(
+        OutputCommandUtil::newLine();
+        OutputCommandUtil::title('Bienvenue dans le jeu du motus !');
+        OutputCommandUtil::writeLn("Vous avez {$configuration->maxAttempts} tentatives pour deviner le mot.");
+        OutputCommandUtil::newLine();
+        OutputCommandUtil::writeLn(
+            "\t"
+            . DisplayStringUtil::replaceStringCharacters(
+                string: $configuration->wordToGuess,
+                replacement: '-',
                 separator: ' ',
-                array: array_fill(start_index: 0, count: mb_strlen($configuration->wordToGuess) - 1, value: '-')
+                startingIndex: 1
             )
-            . "\n";
-        echo "Bonne chance !";
+        );
+        OutputCommandUtil::newLine();
+        OutputCommandUtil::write('Bonne chance !');
+        OutputCommandUtil::newLine();
     }
 }
