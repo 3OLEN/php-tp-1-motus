@@ -12,6 +12,8 @@ readonly class MotusConfigurationDto
 
     public string $wordToGuess;
 
+    public array $letterCounts;
+
     public function __construct(
         int $maxAttempts,
         string $wordToGuess,
@@ -26,5 +28,11 @@ readonly class MotusConfigurationDto
             throw new \ValueError('Le mot à deviner doit contenir au moins 3 lettres');
         }
         $this->wordToGuess = $sanitizedWord;
+
+        $letterCounts = [];
+        foreach (mb_str_split($sanitizedWord) as $letter) {
+            $letterCounts[$letter] = ($letterCounts[$letter] ?? 0) + 1;
+        }
+        $this->letterCounts = $letterCounts;
     }
 }

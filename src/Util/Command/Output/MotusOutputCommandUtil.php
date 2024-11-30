@@ -30,38 +30,66 @@ class MotusOutputCommandUtil
         MotusConfigurationDto $motusConfiguration,
         MotusAttemptDto $wordAttempted
     ): void {
-        OutputCommandUtil::newLine();
-        OutputCommandUtil::tab();
         // Vérification lettre par lettre
+        $validatedLetters = [];
+        $validatedLetterCounts = [];
+        $wronglyPlacedLetters = [];
         foreach (mb_str_split(string: $wordAttempted->word) as $attemptIndex => $attemptLetter) {
             if ($attemptIndex === 0) {
                 // La première lettre est toujours la même
-                OutputCommandUtil::write(WordStringUtil::getFirstLetter($motusConfiguration->wordToGuess));
+                $validatedLetters[$attemptIndex] = $attemptLetter;
+                $validatedLetterCounts[$attemptLetter] = 1;
 
                 continue;
             }
 
             OutputCommandUtil::write(' ');
-            $match = false;
             foreach (mb_str_split(string: $motusConfiguration->wordToGuess) as $wordIndex => $wordLetter) {
+                if ($wordIndex === 0) {
+                    // Ignorer la première lettre, car c'est la même
+                    continue;
+                }
+
                 if ($attemptLetter === $wordLetter) {
-                    $match = true;
                     if ($attemptIndex === $wordIndex) {
-                        OutputCommandUtil::write(ColoredOutputCommandUtil::outputAsGreen($attemptLetter));
-                    } else {
-                        OutputCommandUtil::write(ColoredOutputCommandUtil::outputAsOrange($attemptLetter));
+                        $validatedLetters[$attemptIndex] = $attemptLetter;
+                        $validatedLetterCounts[$attemptLetter] = ($validatedLetterCounts[$attemptLetter] ?? 0) + 1;
+                    } elseif (
+                        ($validatedLetterCounts[$attemptLetter] ?? 0)
+                            < $motusConfiguration->letterCounts[$attemptLetter]
+                    ) {
+                        $wronglyPlacedLetters[$attemptIndex] = $attemptLetter;
                     }
 
                     break;
                 }
             }
-            if ($match) {
-                continue;
-            }
-
-            OutputCommandUtil::write(ColoredOutputCommandUtil::outputAsRed('*'));
         }
 
+        // Affichage
+        OutputCommandUtil::newLine();
+        OutputCommandUtil::tab();
+        $treatedWronglyPlacedLetters = [];
+        foreach (mb_str_split(string: $wordAttempted->word) as $letterIndex => $letter) {
+            if ($letterIndex > 0) {
+                OutputCommandUtil::write(' ');
+            }
+
+            if (isset($validatedLetters[$letterIndex])) {
+                OutputCommandUtil::write(ColoredOutputCommandUtil::outputAsGreen($letter));
+            } elseif (
+                isset($wronglyPlacedLetters[$letterIndex])
+                && (
+                    ($validatedLetterCounts[$letter] ?? 0)
+                    + ($treatedWronglyPlacedLetters[$letter] ?? 0)
+                ) < $motusConfiguration->letterCounts[$letter]
+            ) {
+                OutputCommandUtil::write(ColoredOutputCommandUtil::outputAsOrange($letter));
+                $treatedWronglyPlacedLetters[$letter] = ($treatedWronglyPlacedLetters[$letter] ?? 0) + 1;
+            } else {
+                OutputCommandUtil::write(ColoredOutputCommandUtil::outputAsRed('*'));
+            }
+        }
         OutputCommandUtil::newLine();
         OutputCommandUtil::newLine();
     }
