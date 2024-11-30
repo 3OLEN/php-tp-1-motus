@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace TpMotus;
 
 use TpMotus\Dto\Motus\MotusConfigurationDto;
+use TpMotus\Exception\Motus\StopMotusException;
+use TpMotus\Services\Motus\AttemptService;
 use TpMotus\Util\Command\Output\ColoredOutputCommandUtil;
 use TpMotus\Util\Command\Output\MotusOutputCommandUtil;
 use TpMotus\Util\Command\Output\OutputCommandUtil;
@@ -62,11 +64,32 @@ class MotusApplication
         while ($currentAttempt <= $configuration->maxAttempts && $victory === false) {
             ++$currentAttempt;
             OutputCommandUtil::subtitle("Tentative n°{$currentAttempt}");
+            try {
+                $userAttempt = AttemptService::askForWordAttempt(motusConfiguration: $configuration);
+            } catch (StopMotusException) {
+                OutputCommandUtil::newLine();
+                OutputCommandUtil::writeLn(
+                    ColoredOutputCommandUtil::outputAsOrange('Demande d\'arrêt du jeu acceptée.')
+                );
+                OutputCommandUtil::newLine();
+                OutputCommandUtil::writeLn('À bientôt !');
+
+                return;
+            }
+            $victory = AttemptService::validateAttempt(
+                motusConfiguration: $configuration,
+                wordAttempted: $userAttempt
+            );
+
+            MotusOutputCommandUtil::displayAttemptFeedback(
+                motusConfiguration: $configuration,
+                wordAttempted: $userAttempt
+            );
         }
 
         OutputCommandUtil::writeLn(
             $victory
-                ? "Bravo, il vous a fallu {$currentAttempt} tentatives pour trouver le mot."
+                ? "Bravo, il vous a fallu {$currentAttempt} tentative·s pour trouver le mot."
                 : "Dommage, le mot à trouver était « {$configuration->wordToGuess} »..."
         );
     }
