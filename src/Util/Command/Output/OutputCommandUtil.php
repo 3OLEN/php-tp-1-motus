@@ -10,9 +10,13 @@ class OutputCommandUtil
 {
     public static function title(string $title): void
     {
-        echo "\033[1;32m{$title}\n"
-            . DisplayStringUtil::getRepeatedString(string: '=', count: mb_strlen($title))
-            . "\033[0m\n\n";
+        static::writeLn(
+            message: ColoredOutputCommandUtil::outputAsViolet(
+                "{$title}\n"
+                    . DisplayStringUtil::getRepeatedString(string: '=', count: mb_strlen($title))
+            )
+        );
+        static::newLine();
     }
 
     public static function write(string $message): void
@@ -29,5 +33,10 @@ class OutputCommandUtil
     public static function newLine(): void
     {
         echo "\n";
+    }
+
+    public static function tab(): void
+    {
+        echo "\t";
     }
 }
