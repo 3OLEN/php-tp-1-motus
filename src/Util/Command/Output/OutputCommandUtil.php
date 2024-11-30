@@ -19,6 +19,17 @@ class OutputCommandUtil
         static::newLine();
     }
 
+    public static function subtitle(string $subtitle): void
+    {
+        static::writeLn(
+            message: ColoredOutputCommandUtil::outputAsCyan(
+                "{$subtitle}\n"
+                    . DisplayStringUtil::getRepeatedString(string: '-', count: mb_strlen($subtitle))
+            )
+        );
+        static::newLine();
+    }
+
     public static function write(string $message): void
     {
         echo $message;
@@ -27,6 +38,21 @@ class OutputCommandUtil
     public static function writeLn(string $message): void
     {
         static::write($message);
+        static::newLine();
+    }
+
+    public static function listing(string ...$items): void
+    {
+        static::newLine();
+        foreach ($items as $item) {
+            static::tab();
+            if (str_starts_with(haystack: $item, needle: '- ')) {
+                static::tab();
+                static::writeLn($item);
+            } else {
+                static::writeLn("* {$item}");
+            }
+        }
         static::newLine();
     }
 
