@@ -17,6 +17,17 @@ class WordStringUtil
         return $sanitizedWord;
     }
 
+    public static function isSanitizeValid(string $word): bool
+    {
+        try {
+            static::sanitizeWord($word);
+        } catch (\ValueError) {
+            return false;
+        }
+
+        return true;
+    }
+
     /**
      * Réalise une vérification avec la méthode {@see sanitizeWord()}.
      */

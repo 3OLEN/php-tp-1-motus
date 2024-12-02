@@ -53,11 +53,13 @@ class AttemptService
                     'Le mot doit avoir la même taille ('
                     . mb_strlen($motusConfiguration->wordToGuess)
                     . ' lettres).',
+                WordStringUtil::isSanitizeValid($wordAttempted) === false =>
+                    'Vérifiez votre saisie : seulement des lettres (accents autorisés).',
                 WordStringUtil::getFirstLetter($wordAttempted)
-                !== WordStringUtil::getFirstLetter($motusConfiguration->wordToGuess) =>
-                    'Le mot doit commencer par la lettre « '
-                    . WordStringUtil::getFirstLetter($motusConfiguration->wordToGuess)
-                    . ' ».',
+                    !== WordStringUtil::getFirstLetter($motusConfiguration->wordToGuess) =>
+                        'Le mot doit commencer par la lettre « '
+                        . WordStringUtil::getFirstLetter($motusConfiguration->wordToGuess)
+                        . ' ».',
                 default => null,
             };
             if ($errorMessage !== null) {
